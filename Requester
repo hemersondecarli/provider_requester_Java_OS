@@ -1,0 +1,148 @@
+package javaLearning;
+import javax.swing.*;  
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+import javax.swing.JOptionPane;
+public class Requester{
+	Socket requestSocket;
+	ObjectOutputStream out;
+ 	ObjectInputStream in;
+ 	String message;
+ 	String response;
+ 	Scanner input;
+ 	
+	int number1, number2, sum, multiply_1, multiply_2, sumMulti;
+	Requester(){
+		
+		input = new Scanner(System.in);
+	}
+	void run()
+	{
+		try{
+			//1. creating a socket to connect to the server
+			
+			requestSocket = new Socket("127.0.0.1", 2004);
+			System.out.println("Connected to localhost in port 2004");
+			//2. get Input and Output streams
+			out = new ObjectOutputStream(requestSocket.getOutputStream());
+			out.flush();
+			in = new ObjectInputStream(requestSocket.getInputStream());
+			//3: Communicating with the server
+			
+			
+			
+			//Client Comms
+			try 
+			{
+				message = (String)in.readObject();
+				System.out.println(message);
+				response = input.next(); // input.next() part of the scanner class
+				sendMessage(response); //send message back to the server
+				
+				
+				if(response.equalsIgnoreCase("1"))
+				{
+					System.out.println("Enter FIRST number"); //ask the user to enter first addition number
+					number1 = input.nextInt();
+					//System.out.println(number1); //prints to the screen the number the user chose
+					
+					System.out.println("Enter SECOND number"); //ask the user to enter a number
+					number2 = input.nextInt();
+					//System.out.println(number2); 
+					
+					sum = number1+number2;//performing a 2 numbers addition
+					
+					sendAddition(sum);
+					
+				//System.out.println(no);
+				}
+				
+				else if(response.equalsIgnoreCase("2"))
+				{
+					System.out.println("Enter FIRST number"); //ask the user to enter first multiplier 
+					multiply_1 = input.nextInt();
+			
+					
+					System.out.println("Enter SECOND number"); //ask the user to enter a number
+					multiply_2 = input.nextInt();
+	
+					
+					sumMulti = multiply_1*multiply_2;//performing a 2 numbers multiplication
+					
+					sendMultiply(sumMulti);
+				}
+				
+				
+			} 
+			
+			
+			catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
+		}
+		catch(UnknownHostException unknownHost){
+			System.err.println("You are trying to connect to an unknown host!");
+		}
+		catch(IOException ioException){
+			ioException.printStackTrace();
+		}
+		finally{
+			//4: Closing connection
+			try{
+				in.close();
+				out.close();
+				requestSocket.close();
+			}
+			catch(IOException ioException){
+				ioException.printStackTrace();
+			}
+		}
+	}
+	void sendMessage(String msg)
+	{
+		try{
+			out.writeObject(msg);
+			out.flush();
+			System.out.println("client>" + msg);
+		}
+		catch(IOException ioException){
+			ioException.printStackTrace();
+		}
+	}
+	void sendAddition(int add)
+	{
+		try{
+			out.writeObject(add);
+			out.flush();
+			System.out.println("clientAddition>" + add);
+		}
+		catch(IOException ioException){
+			ioException.printStackTrace();
+		}
+	}
+	
+	void sendMultiply(int multiply)
+	{
+		try{
+			out.writeObject(multiply);
+			out.flush();
+			System.out.println("clientMultiply>" + multiply);
+		}
+		catch(IOException ioException){
+			ioException.printStackTrace();
+		}
+	}
+	
+	
+	public static void main(String args[])
+	{
+		Requester client = new Requester();
+		client.run();
+	}
+}
